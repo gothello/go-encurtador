@@ -1,33 +1,35 @@
 package main
 
 import (
-
 	"fmt"
-	"flag"
 	"net/http"
+
+	"github.com/gothello/go-encurtador/config"
 	"github.com/gothello/go-encurtador/routes"
 )
 
-var (
-	port = flag.Int("port", 3000, "port running service")
-)
-
-func init() {
-	flag.Parse()
-}
-
 func main() {
-	
+
+	conf, err := config.Load()
+	if err != nil {
+		panic(err)
+	}
+
+	port := conf.GetInt("api_port")
+	if port == 0 {
+		port = 3000
+	}
+
 	mux := routes.LoadRoutes()
 
 	server := &http.Server{
 		Handler: mux,
-		Addr: fmt.Sprintf(":%d", *port),
+		Addr:    fmt.Sprintf(":%d", port),
 	}
 
-	fmt.Printf("Server running port:%d\n", *port)
+	fmt.Printf("Server running port:%d\n", port)
 
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil {
 		panic(err)
 	}

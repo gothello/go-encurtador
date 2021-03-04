@@ -7,22 +7,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gothello/go-encurtador/models"
 	"github.com/gothello/go-encurtador/utils"
-	"gopkg.in/mgo.v2/bson"
 )
 
-type reqPost struct {
-	ID        bson.ObjectId `bson:"_id" json:"id"`
-	URL       string        `bson:"url" json:"url"`
-	Hash      retHash
-	CreatedAt time.Time `bson:"createdAt" json:"created_at"`
-}
-
-type retHash struct {
-	Hash string `bson:"hash" json:"hash"`
-}
-
-func GenerateHash(lenght int) retHash {
+func GenerateHash(lenght int) models.RetHash {
 	alfanum := []rune("abcdefghijklmnopqrstuvxwyzABCDEFGHIJKLMNOPQRSTUVXWYZ123456789")
 
 	h := make([]rune, lenght)
@@ -32,7 +21,7 @@ func GenerateHash(lenght int) retHash {
 		h[i] = alfanum[rand.Intn(len(alfanum))]
 	}
 
-	rhash := retHash{
+	rhash := models.RetHash{
 		Hash: string(h),
 	}
 
@@ -47,7 +36,7 @@ func Urls(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var rp reqPost
+	var rp models.ReqPost
 
 	err := json.NewDecoder(r.Body).Decode(&rp)
 	if err != nil {
