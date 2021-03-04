@@ -1,30 +1,44 @@
 package controllers
 
 import (
-
-	"fmt"
-	"net/http"
 	"encoding/json"
+	"fmt"
+	"math/rand"
+	"net/http"
+	"time"
+
 	"github.com/gothello/go-encurtador/utils"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type reqPost struct {
-	UserID string `json:"user_id"`
-	OriginUrl string `json:"original_url"`
+	ID        bson.ObjectId `bson:"_id" json:"id"`
+	URL       string        `bson:"url" json:"url"`
+	Hash      retHash
+	CreatedAt time.Time `bson:"createdAt" json:"created_at"`
 }
 
-type reqGet struct {
-	Hash string `json:"hash"`
+type retHash struct {
+	Hash string `bson:"hash" json:"hash"`
 }
 
-func GetHash(userID string, originalUrl string) (reqGet, error) {
-	retHash := reqGet{
-		Hash: "abcdefghi",
+func GenerateHash(lenght int) retHash {
+	alfanum := []rune("abcdefghijklmnopqrstuvxwyzABCDEFGHIJKLMNOPQRSTUVXWYZ123456789")
+
+	h := make([]rune, lenght)
+
+	for i := range h {
+		rand.Seed(time.Now().UTC().UnixNano())
+		h[i] = alfanum[rand.Intn(len(alfanum))]
 	}
 
-	fmt.Println(retHash)
+	rhash := retHash{
+		Hash: string(h),
+	}
 
-	return retHash, nil
+	fmt.Println(rhash)
+
+	return rhash
 }
 
 func Urls(w http.ResponseWriter, r *http.Request) {
@@ -35,19 +49,19 @@ func Urls(w http.ResponseWriter, r *http.Request) {
 
 	var rp reqPost
 
-	json.NewDecoder(r.Body).Decode(&rp)
-
-	hash, err := GetHash(rp.UserID, rp.OriginUrl)
+	err := json.NewDecoder(r.Body).Decode(&rp)
 	if err != nil {
-		utils.ToError(w, err.Error(), http.StatusInternalServerError)
+		utils.ToError(w, err.Error(), http.StatusBadRequest)
 	}
+
+	fmt.Println(rp)
+	hash := GenerateHash(7)
 
 	payload, err := json.Marshal(hash)
 	if err != nil {
 		utils.ToError(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	fmt.Println(string(payload))
-
-	utils.ToJson(w, payload, http.StatusCreated)
+	utils.ToJson(w, payload, http.
+		StatusCreated)
 }
