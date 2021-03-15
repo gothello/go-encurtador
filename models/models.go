@@ -8,7 +8,8 @@ import (
 
 type ReqPost struct {
 	ID        bson.ObjectId `bson:"id" json:"id"`
-	URL       string        `bson:"url" json:"url"`
+	Url       string        `bson:"url" json:"url"`
+	NewURL	  string 		`bson:"new_url" json:"newurl"` 
 	Hash      RetHash
 	CreatedAt time.Time `bson:"createdAt" json:"created_at"`
 }
