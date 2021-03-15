@@ -11,6 +11,10 @@ import (
 	"github.com/gothello/go-encurtador/utils"
 )
 
+func init() {
+	rand.Seed(time.Now().UTC().UnixNano())
+}
+
 func GenerateHash(lenght int) models.RetHash {
 	alfanum := []rune("abcdefghijklmnopqrstuvxwyzABCDEFGHIJKLMNOPQRSTUVXWYZ123456789")
 
