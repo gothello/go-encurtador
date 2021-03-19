@@ -1,3 +1,4 @@
+
 package routes
 
 import (
@@ -9,8 +10,9 @@ import (
 func LoadRoutes() *http.ServeMux {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/api/", controllers.Home)
-	mux.HandleFunc("/api/urls", controllers.Urls)
+	mux.HandleFunc("/api/home", controllers.Home)
+	mux.HandleFunc("/api/url", controllers.Urls)
+	mux.HandleFunc("/api/", controllers.Redirect)
 
 	return mux
 }

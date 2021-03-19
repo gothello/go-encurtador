@@ -2,36 +2,27 @@ package db
 
 import (
 
-	"log"
-	"time"
-	"context"
-	"go.mongo.org/mongo-driver/mongo"
-	"go.mongo.org/mongo-driver/mongo/options"
+	
+	mgo "gopkg.in/mgo.v2"
+//	"gopkg.in/mgo.v2/bson"
+	"github.com/gothello/go-encurtador/config"
 )
 
-func Connect() *mongo.Client {
-	conf := config.Load()
-
-	mongoUser := conf.Get("mongouser")
-	mongoPass := conf.Get("mongopass")
-	mongoHost := conf.Get("mongoHost")
-
-	credentials := options.Credentials{
-		Username: mongoUser,
-		password: mongoPass,
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background, 10*time.Second)
-	defer cancel()
-	client, err := mongo.Connect(context.TODO(), options.Client().SetAuth(credentials).ApplyURI(mongoHost))
+func Connect() (*mgo.Database, error) {
+	conf, err := config.Load()
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("Error to load config databases: %s", err)
 	}
 
-	err = client.Ping(ctx, nil)
+//	mongoUser := conf.Get("mongouser")
+	db := conf.GetString("database")
+	mongohost := conf.GetString("mongohost")
+
+	session, err := mgo.Dial(mongohost)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	return client
+
+	return session.DB(db), nil
 } 
