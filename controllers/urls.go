@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -37,26 +38,26 @@ func GenerateCode(lenght int, oldUrl string) (models.Link, error) {
 			rand.Seed(time.Now().UTC().UnixNano())
 			result[i] = seeders[rand.Intn(len(seeders))]
 
-			if _, err := models.GetByCode(string(result)); err == nil {
-				continue
-			}
+			if _, err := models.GetByCode(string(result)); err != nil {
+				l = models.Link{
+					ID:        bson.NewObjectId(),
+					Code:      string(result),
+					Url:       uri.String(),
+					CreatedAt: time.Now(),
+				}
 
-			l = models.Link{
-				ID:        bson.NewObjectId(),
-				Code:      string(result),
-				Url:       uri.String(),
-				CreatedAt: time.Now(),
-			}
-
-			err := models.Create(l)
-			if err != nil {
-				return l, err
+				err := models.Create(l)
+				if err != nil {
+					return l, err
+				}
 			}
 
 			break
 		}
-	}
 
+		continue
+	}
+	fmt.Println(l)
 	return l, nil
 }
 
@@ -92,6 +93,7 @@ func Urls(w http.ResponseWriter, r *http.Request) {
 	}
 
 	l, err = GenerateCode(7, j.Url)
+	fmt.Println(l)
 
 	utils.ToJson(w, map[string]string{
 		"code": l.Code,
