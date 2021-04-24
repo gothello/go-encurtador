@@ -3,30 +3,29 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
-	"time"
-	"log"
 	"net/url"
+	"time"
+
 	"gopkg.in/mgo.v2/bson"
-//	"strings"
-//	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	//	"strings"
+	//	"go.mongodb.org/mongo-driver/bson/primitive"
 	"github.com/gothello/go-encurtador/models"
 	"github.com/gothello/go-encurtador/utils"
 )
 
 var (
-
 	codes = map[string]string{}
 
 	seeders = []rune("abcdefghijklmnopqrstuvxwyzABCDEFGHIJKLMNOPQRSTUVXWYZ123456789")
-
 )
 
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 }
-
 
 func GenerateCode(lenght int, url string) string {
 	h := make([]rune, lenght)
@@ -37,7 +36,6 @@ func GenerateCode(lenght int, url string) string {
 			rand.Seed(time.Now().UTC().UnixNano())
 			h[i] = seeders[rand.Intn(len(seeders))]
 		}
-
 
 		if _, ok := codes[string(h)]; !ok {
 
@@ -50,22 +48,22 @@ func GenerateCode(lenght int, url string) string {
 	return string(h)
 }
 
-func Redirect (w http.ResponseWriter, r *http.Request) {
+func Redirect(w http.ResponseWriter, r *http.Request) {
 	keys := r.URL.Query()
 	hash := keys.Get("code")
 	log.Println(hash)
 
-/*	doc, err := models.FindOne(hash)
-	if err != nil {
-		utils.ToError(w, err.Error(), http.StatusNotFound)
-	}
-*/
+	/*	doc, err := models.FindOne(hash)
+		if err != nil {
+			utils.ToError(w, err.Error(), http.StatusNotFound)
+		}
+	*/
 
 	for code, url := range codes {
 		if hash == code {
 			http.Redirect(w, r, url, http.StatusMovedPermanently)
 		}
-	}	
+	}
 }
 
 func Urls(w http.ResponseWriter, r *http.Request) {
@@ -94,9 +92,9 @@ func Urls(w http.ResponseWriter, r *http.Request) {
 	code := GenerateCode(7, j.Url)
 
 	p := models.Link{
-		ID: bson.NewObjectId(),
-		Code: "TESTE",
-		Url: "google.com",
+		ID:        bson.NewObjectId(),
+		Code:      "TESTE",
+		Url:       "google.com",
 		CreatedAt: time.Now(),
 	}
 
@@ -120,20 +118,19 @@ func Urls(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("%+v\n", l)
 
+	/*
 
-/*
+		link := models.Link{
+			ID: primitive.NewObjectID(),
+			Code: code,
+			Url: uri.String(),
+			CreatedAt: time.Now(),
+		}
 
-	link := models.Link{
-		ID: primitive.NewObjectID(),
-		Code: code,
-		Url: uri.String(),
-		CreatedAt: time.Now(),
-	}
-
-	if err := models.Insert(link); err != nil {
-		utils.ToError(w, err.Error(), http.StatusBadRequest)
-	}
-*/
+		if err := models.Insert(link); err != nil {
+			utils.ToError(w, err.Error(), http.StatusBadRequest)
+		}
+	*/
 
 	utils.ToJson(w, map[string]string{
 		"url": "http://localhost:3000/api/" + code,
