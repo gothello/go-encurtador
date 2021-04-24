@@ -3,9 +3,8 @@ package db
 import (
 	"fmt"
 
-	mgo "gopkg.in/mgo.v2"
-	//	"gopkg.in/mgo.v2/bson"
 	"github.com/gothello/go-encurtador/config"
+	mgo "gopkg.in/mgo.v2"
 )
 
 func Connect() (*mgo.Database, error) {
