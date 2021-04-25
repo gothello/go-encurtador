@@ -3,10 +3,10 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/rand"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/gothello/go-encurtador/models"
@@ -63,15 +63,17 @@ func GenerateCode(lenght int, oldUrl string) (models.Link, error) {
 }
 
 func Redirect(w http.ResponseWriter, r *http.Request) {
-	keys := r.URL.Query()
-	hash := keys.Get("code")
-	log.Println(hash)
+	rc := r.URL.Path
 
-	for code, url := range codes {
-		if hash == code {
-			http.Redirect(w, r, url, http.StatusMovedPermanently)
-		}
+	c := strings.Split(rc, "/")
+
+	l, err := models.GetByCode(c[1])
+	if err != nil {
+		utils.ToError(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+
+	http.Redirect(w, r, l.Url, http.StatusMovedPermanently)
 }
 
 func Urls(w http.ResponseWriter, r *http.Request) {
@@ -97,6 +99,6 @@ func Urls(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(l)
 
 	utils.ToJson(w, map[string]string{
-		"code": l.Code,
+		"new_url": "http://localhost:3000/api/" + l.Code,
 	}, http.StatusCreated)
 }
