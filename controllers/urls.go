@@ -37,19 +37,20 @@ func GenerateCode(lenght int, oldUrl string) (models.Link, error) {
 		for i := range result {
 			rand.Seed(time.Now().UTC().UnixNano())
 			result[i] = seeders[rand.Intn(len(seeders))]
+		}
 
-			if _, err := models.GetByCode(string(result)); err != nil {
-				l = models.Link{
-					ID:        bson.NewObjectId(),
-					Code:      string(result),
-					Url:       uri.String(),
-					CreatedAt: time.Now(),
-				}
+		if _, err := models.GetByCode(string(result)); err != nil {
 
-				err := models.Create(l)
-				if err != nil {
-					return l, err
-				}
+			l = models.Link{
+				ID:        bson.NewObjectId(),
+				Code:      string(result),
+				Url:       uri.String(),
+				CreatedAt: time.Now(),
+			}
+
+			err := models.Create(l)
+			if err != nil {
+				return l, err
 			}
 
 			break
@@ -57,7 +58,7 @@ func GenerateCode(lenght int, oldUrl string) (models.Link, error) {
 
 		continue
 	}
-	fmt.Println(l)
+
 	return l, nil
 }
 
