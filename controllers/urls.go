@@ -15,8 +15,6 @@ import (
 )
 
 var (
-	codes = map[string]string{}
-
 	seeders = []rune("abcdefghijklmnopqrstuvxwyzABCDEFGHIJKLMNOPQRSTUVXWYZ123456789")
 )
 
